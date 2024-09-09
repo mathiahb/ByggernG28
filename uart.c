@@ -1,10 +1,12 @@
 #include "uart.h"
 #include "gpio.h"
 
+#include "stdio.h"
+
 // Hentet fra databladet
 #define FOSC 4915200
 #define BAUD 9600
-#define UBRR FOSC / 16 / BAUD - 1
+#define UBRR (FOSC / 16 / BAUD - 1)
 
 // Register B
 int TXEN = 3;
@@ -31,20 +33,19 @@ volatile unsigned char *UDR0 = (unsigned char *)0x2C;
 
 void init_uart()
 {
-
-  set_pin_as_output(D, 1);
-  set_pin_as_input(D, 0);
   // Trenger UBBRH å inneholde største verdier
   // UBBRL å inneholde minste verdier
   // Baudrate
 
   // Hentet fra databladet
-  *UBRR0H = (unsigned char)(UBRR >> 8);
-  *UBRR0L = (unsigned char) UBRR;
+  *UBRR0H = (unsigned char) ((UBRR) >> 8);
+  *UBRR0L = (unsigned char) (UBRR);
 
   *UCSR0B = (1 << RXEN) | (1 << TXEN);
 
   *UCSR0C = (1 << URSEL) | (1 << USBS) | (3 << UCSZ0);
+
+  fdevopen(guarantee_send_uart, receive_uart);
 }
 
 void send_uart(char letter)
@@ -56,6 +57,14 @@ void send_uart(char letter)
 
   *UDR0 = letter;
 }
+
+void guarantee_send_uart(char letter)
+{
+  while (!uart_ready_to_send()){}
+
+  *UDR0 = letter;
+}
+
 
 char receive_uart()
 {
