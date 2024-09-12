@@ -1,18 +1,16 @@
 #include "gpio.h"
 #include "uart.h"
+#include "xmemory.h"
 
 #include "stdio.h"
 
 int main()
 {
   init_uart();
-
-  set_pin_as_output(A, 0);
-  //set_pin_as_output(A, 1);
-  //set_pin_as_output(A, 2);
-  int on = 1;
+  init_xmemory();
 
   volatile int sleep = 0;
+  int latch_pin = 0;
 
   while (1)
   {
@@ -28,13 +26,19 @@ int main()
       write_pin(A, 1, on);
     }*/
 
-   printf("Sleep: %d\n", sleep);
+    if((sleep % 5000) == 0){
+        printf("Sleep: %d\n", sleep);
+    }
 
     if (!sleep)
     {
-      write_pin(A, 0, on);
-      on = !on;
       sleep = 10000;
+      
+      printf("Latch pin %d\n", latch_pin);
+
+      XMEM[(1 << latch_pin)] = 0;
+      latch_pin++;
+      latch_pin %= 8;
     }
 
     --sleep;
