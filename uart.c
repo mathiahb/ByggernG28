@@ -33,6 +33,9 @@ volatile unsigned char *UDR0 = (unsigned char *)0x2C;
 
 void init_uart()
 {
+  set_pin_as_output(D, 1);
+  set_pin_as_input(D, 0);
+
   // Trenger UBBRH å inneholde største verdier
   // UBBRL å inneholde minste verdier
   // Baudrate

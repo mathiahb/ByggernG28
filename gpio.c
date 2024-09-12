@@ -73,8 +73,6 @@ void write_pin(enum Port port, int pin, int value)
   {
     if (value)
     {
-  set_pin_as_output(D, 1);
-  set_pin_as_input(D, 0);
       *PORTA |= (1 << pin);
     }
     else
