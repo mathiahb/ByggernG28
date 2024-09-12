@@ -3,10 +3,14 @@
 #include "xmemory.h"
 
 #include "stdio.h"
-
-#ifdef SRAM_TEST
 #include "stdint.h"
 #include <stdlib.h>
+
+#define DECODER_TEST
+
+#ifdef SRAM_TEST
+// From Blackboard.
+
 void SRAM_test(void){
   volatile char *ext_ram = (char *) 0x1800; // Start address for the SRAM
       uint16_t ext_ram_size = 0x800;
@@ -42,16 +46,46 @@ void SRAM_test(void){
 }
 #endif
 
+#ifdef DECODER_TEST
+volatile char* OLED = (char*) 0x1000;
+volatile char* ADC = (char*) 0x1400;
+volatile char* SRAM = (char*) 0x1800;
+
+int two_on = 0;
+int three_on = 0;
+#endif
+
 int main()
 {
   init_uart();
+
+#ifndef DECODER_TEST
   init_xmemory();
+#endif
 
   volatile int sleep = 0;
-  int latch_pin = 0;
+  uint16_t mem_sel = 0;
 
   while (1)
   {
+#ifdef DECODER_TEST
+    set_pin_as_output(C, 2);
+    set_pin_as_output(C, 3);
+
+    if(uart_unread_data_in_buffer()){
+      char letter = receive_uart();
+      if(letter == '2'){
+        two_on = !two_on;
+        write_pin(C, 2, two_on);
+      }
+
+      if(letter == '3'){
+        three_on = !three_on;
+        write_pin(C, 3, three_on);
+      }
+    }
+#endif
+
     if((sleep % 5000) == 0){
         printf("Sleep: %d\n", sleep);
     }
