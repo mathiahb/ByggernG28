@@ -1,12 +1,11 @@
 #include "gpio.h"
 #include "uart.h"
 #include "xmemory.h"
+#include "adc_clock.h"
 
 #include "stdio.h"
 #include "stdint.h"
 #include <stdlib.h>
-
-#define DECODER_TEST
 
 #ifdef SRAM_TEST
 // From Blackboard.
@@ -59,12 +58,14 @@ int main()
 {
   init_uart();
 
+  setup_adc_clock();
+
 #ifndef DECODER_TEST
   init_xmemory();
 #endif
 
   volatile int sleep = 0;
-  uint16_t mem_sel = 0;
+  //uint16_t mem_sel = 0;
 
   while (1)
   {
@@ -87,12 +88,12 @@ int main()
 #endif
 
     if((sleep % 5000) == 0){
-        printf("Sleep: %d\n", sleep);
+        //printf("Sleep: %d\r\n", sleep);
     }
 
     if (!sleep)
     {
-      sleep = 10000;
+      sleep = 100000;
 
 #ifdef SRAM_TEST
       SRAM_test();

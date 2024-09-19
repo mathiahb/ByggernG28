@@ -3,6 +3,10 @@
 
 volatile char* XMEM = (char*) 0x1000;
 
+volatile char* OLED = (char*) 0x1000;
+volatile char* ADC = (char*) 0x1400;
+volatile char* SRAM = (char*) 0x1800;
+
 //volatile unsigned char* EMCUCR = 0x56;
 volatile unsigned char* MCUCR = (unsigned char*) 0x55;
 
