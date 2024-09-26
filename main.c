@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "xmemory.h"
 #include "adc_clock.h"
+#include "oled.h"
 
 #include "stdio.h"
 #include "stdint.h"
@@ -58,14 +59,26 @@ int main()
 {
   init_uart();
 
-  setup_adc_clock();
-
 #ifndef DECODER_TEST
   init_xmemory();
 #endif
 
-  volatile int sleep = 0;
+  setup_adc_clock();
+
+  set_pin_as_input(B, 1);
+  set_pin_as_input(B, 2);
+  set_pin_as_input(B, 3);
+
+  volatile uint16_t sleep = (uint16_t) -1;
+  //while(--sleep){}
+
+  oled_init();
+  oled_reset();
   //uint16_t mem_sel = 0;
+
+  // char A[9] = {0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F, 0};
+  // oled_print(A);
+
 
   while (1)
   {
@@ -74,7 +87,7 @@ int main()
     set_pin_as_output(C, 3);
 
     if(uart_unread_data_in_buffer()){
-      char letter = receive_uart();
+      char letter = uart_receive();
       if(letter == '2'){
         two_on = !two_on;
         write_pin(C, 2, two_on);
@@ -87,6 +100,14 @@ int main()
     }
 #endif
 
+    if(uart_unread_data_in_buffer()){
+      char letter = uart_receive();
+      oled_print(letter);
+    }
+
+    oled_goto_line(2);
+    oled_print('A');
+
     if((sleep % 5000) == 0){
         //printf("Sleep: %d\r\n", sleep);
     }
@@ -94,6 +115,7 @@ int main()
     if (!sleep)
     {
       sleep = 100000;
+      oled_reset();
 
 #ifdef SRAM_TEST
       SRAM_test();

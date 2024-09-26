@@ -48,7 +48,7 @@ void init_uart()
 
   *UCSR0C = (1 << URSEL) | (1 << USBS) | (3 << UCSZ0);
 
-  fdevopen(guarantee_send_uart, receive_uart);
+  fdevopen(guarantee_send_uart, uart_receive);
 }
 
 void send_uart(char letter)
@@ -69,7 +69,7 @@ void guarantee_send_uart(char letter)
 }
 
 
-char receive_uart()
+char uart_receive()
 {
   if (!uart_unread_data_in_buffer())
   {

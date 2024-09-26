@@ -5,6 +5,7 @@
 #include "stdint.h"
 #include "avr/interrupt.h"
 #include "stdio.h"
+#include "stdlib.h"
 
 // ---------------- ADC CLOCK REGISTERS ----------------
 //volatile unsigned char* TCCR1A = (unsigned char*) 0x4F;
@@ -63,6 +64,62 @@ volatile uint8_t y = 0;
 volatile uint8_t touch_a = 0;
 volatile uint8_t touch_b = 0;
 
+//With correction
+//volatile int16_t x_adj = 0;
+//volatile int16_t y_adj = 0;
+
+// Calibration values
+volatile uint8_t x_calibration = 0; 
+volatile uint8_t y_calibration = 0;
+volatile int16_t x_max_adjusted = 0;
+volatile int16_t y_max_adjusted = 0;
+
+Point get_analog_direction(){
+    Point analog_position = (Point) {.x = 0, .y = 0, .left_slider = (int16_t) touch_a, .right_slider = (int16_t) touch_b};
+
+    if (x > x_calibration){
+        analog_position.x = (x-x_calibration)*100/(x_max_adjusted);
+    }
+    else{
+        analog_position.x =(x*100)/x_calibration - 100;
+    }
+
+    if (y > y_calibration){
+        analog_position.y =(y-y_calibration)*100/(y_max_adjusted);
+    }
+    else{
+        analog_position.y =(y*100)/y_calibration - 100;
+    }
+
+    return analog_position;
+}
+
+DIRECTION get_digital_direction(Point analog_direction){
+    const int16_t limit = 20;
+
+    //Point analog_direction = get_analog_direction();
+
+    if(abs(analog_direction.x) > abs(analog_direction.y)){
+        if(analog_direction.x > limit){
+            return RIGHT;
+        }else if(analog_direction.x < -limit){
+            return LEFT;
+        }else{
+            return NEUTRAL;
+        }
+    }else{
+        if(analog_direction.y > limit){
+            return UP;
+        }else if(analog_direction.y < -limit){
+            return DOWN;
+        }else{
+            return NEUTRAL;
+        }
+    }
+
+    return -1;
+}
+
 ISR(INT0_vect, ISR_BLOCK){
     cli();
 
@@ -71,7 +128,9 @@ ISR(INT0_vect, ISR_BLOCK){
     touch_a = ADC[0];
     touch_b = ADC[0];
 
-    printf("x: %u, y: %u, a: %u, b: %u \r\n", x, y, touch_a, touch_b);
+    Point analog_position = get_analog_direction();
+    DIRECTION direction = get_digital_direction(analog_position);
+    printf("x: %d, y: %d, a: %u, b: %u, d: %d \r\n", analog_position.x, analog_position.y, touch_a, touch_b, (int16_t) direction);
 
     GIFR = 0;
 
@@ -94,11 +153,11 @@ ISR(BADISR_vect){
 
 
 void setup_adc_clock(){
-    if(MCUCSR & (1<<PORF )) printf("Power-on reset.\n");
-    if(MCUCSR & (1<<EXTRF)) printf("External reset!\n");
-    if(MCUCSR & (1<<BORF )) printf("Brownout reset!\n");
-    if(MCUCSR & (1<<WDRF )) printf("Watchdog reset!\n");
-    if(MCUCSR & (1<<JTRF )) printf("JTAG reset!\n");
+    if(MCUCSR & (1<<PORF )) printf("Power-on reset.\r\n");
+    if(MCUCSR & (1<<EXTRF)) printf("External reset!\r\n");
+    if(MCUCSR & (1<<BORF )) printf("Brownout reset!\r\n");
+    if(MCUCSR & (1<<WDRF )) printf("Watchdog reset!\r\n");
+    if(MCUCSR & (1<<JTRF )) printf("JTAG reset!\r\n");
     MCUCSR = 0;
 
     set_pin_as_input(D, 5);
@@ -123,6 +182,18 @@ void setup_adc_clock(){
 
     // Activate signal.
     set_pin_as_output(D, 5);
+
+    // Read correction
+    ADC[0] = 0;
+    while(!read_pin(D, 5)){
+        volatile uint8_t sleep = 10;
+        while(--sleep){}
+    }
+    y_calibration = ADC[0];
+    x_calibration = ADC[0];
+
+    x_max_adjusted = 255 - (int16_t) x_calibration;
+    y_max_adjusted = 255 - (int16_t) y_calibration;
 
     // Set MODE of Timer 3 to 4
     TCCR3A |= (1 << COM3A0);
