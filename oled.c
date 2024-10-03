@@ -6,6 +6,7 @@
 
 volatile unsigned char* OLED_COMMAND_BASE = (unsigned char*) 0x2000;
 volatile unsigned char* OLED_DATA = (unsigned char*) 0x2200;
+volatile unsigned char* OLED_SRAM_DATA = (unsigned char*) 0x1C00;
 
 uint16_t current_line = 0;
 uint16_t current_column = 0;
@@ -16,6 +17,10 @@ void write_c(char command){
 
 void write_d(char data){
     *OLED_DATA = data;
+}
+
+void write_data_to_sram_copy(char data){
+    OLED_SRAM_DATA[current_line * 128 + current_column] = data;
     current_column += 1;
     if(current_column == 128) current_column = 0;
 }
@@ -58,8 +63,11 @@ void oled_home(){
 
 void oled_goto_line(uint16_t line){
     if(line < 8){
+        /*
         uint8_t command = 0xB0 + line;
         write_c(command);
+        */
+
         current_line = line;
     }
     else{
@@ -70,6 +78,9 @@ void oled_goto_line(uint16_t line){
 
 void oled_goto_column(uint16_t column){
     if(column < 128){
+        current_column = column;
+
+        /*
         uint8_t lower_bits = (0x0F & column);
         uint8_t higher_bits = (0xF0 & column)>>4;
         uint8_t lower_command = (0x00 + lower_bits);
@@ -78,6 +89,7 @@ void oled_goto_column(uint16_t column){
         write_c(higher_command);
 
         current_column = column;
+        */
     }
     else{
         printf("!");
@@ -87,7 +99,7 @@ void oled_goto_column(uint16_t column){
 void oled_clear_line(uint16_t line){
     oled_goto_line(line);
     for(int i = 0; i<128; i++){
-        write_d(0x00);
+        write_data_to_sram_copy(0x00);
     }
 
 }
@@ -99,7 +111,7 @@ void oled_pos(uint16_t row, uint16_t column){
 void oled_print_arrow(int direction){
     if(direction < 4){
         for(int i = 0; i < 8; i++){
-            write_d(pgm_read_byte(&(arrows[direction][i])));
+            write_data_to_sram_copy(pgm_read_byte(&(arrows[direction][i])));
         }
     }
 }
@@ -121,7 +133,7 @@ void oled_print(char letter){
         // Letter size * tabulator_distance
         const int tab_modulo = 8 * 4;
         for(int i = current_column % tab_modulo; i < 32; i++){
-            write_d(0);
+            write_data_to_sram_copy(0);
         }
     }
     
@@ -131,6 +143,25 @@ void oled_print(char letter){
     if(index > 94) return; // Invalid character
 
     for(int i = 0; i < 8; i++){
-        write_d(pgm_read_byte(&(font8[index][i])));
+        write_data_to_sram_copy(pgm_read_byte(&(font8[index][i])));
+    }
+}
+
+void print_sram_to_oled(){
+    uint8_t lower_bits = (0x0F & 0);
+    uint8_t higher_bits = (0xF0 & 0)>>4;
+    uint8_t lower_command = (0x00 + lower_bits);
+    uint8_t higher_command = (0x10 + higher_bits);
+    write_c(lower_command);
+    write_c(higher_command);
+
+
+    for(int line = 0; line < 8; line++){
+        uint8_t command = 0xB0 + line;
+        write_c(command);
+
+        for(int column = 0; column < 128; column++){
+            write_d(OLED_SRAM_DATA[line * 128 + column]);
+        }
     }
 }

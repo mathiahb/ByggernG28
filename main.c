@@ -73,7 +73,7 @@ int main()
   set_pin_as_input(B, 1); // Touch Button Right
   set_pin_as_input(B, 2); // Touch Button Left
 
-  volatile uint16_t sleep = (uint16_t) -1;
+  volatile uint16_t sleep = (uint16_t) 100;
   //while(--sleep){}
 
   oled_init();
@@ -125,7 +125,8 @@ int main()
 
     if (!sleep)
     {
-      sleep = 100000;
+      sleep = 10;
+      print_sram_to_oled();
       //oled_reset();
 
 #ifdef SRAM_TEST
