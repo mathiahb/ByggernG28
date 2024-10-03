@@ -14,4 +14,4 @@ typedef struct{
 void setup_adc_clock();
 
 DIRECTION get_digital_direction(Point analog_direction);
-Point get_analog_direction();
+Point get_analog_position();

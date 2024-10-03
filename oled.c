@@ -7,12 +7,17 @@
 volatile unsigned char* OLED_COMMAND_BASE = (unsigned char*) 0x2000;
 volatile unsigned char* OLED_DATA = (unsigned char*) 0x2200;
 
+uint16_t current_line = 0;
+uint16_t current_column = 0;
+
 void write_c(char command){
     *OLED_COMMAND_BASE = command;
 }
 
 void write_d(char data){
     *OLED_DATA = data;
+    current_column += 1;
+    if(current_column == 128) current_column = 0;
 }
 
 void oled_init(){
@@ -55,6 +60,7 @@ void oled_goto_line(uint16_t line){
     if(line < 8){
         uint8_t command = 0xB0 + line;
         write_c(command);
+        current_line = line;
     }
     else{
         printf("!");
@@ -64,12 +70,14 @@ void oled_goto_line(uint16_t line){
 
 void oled_goto_column(uint16_t column){
     if(column < 128){
-        uint8_t lower_bits = (0xF0 & column);
+        uint8_t lower_bits = (0x0F & column);
         uint8_t higher_bits = (0xF0 & column)>>4;
         uint8_t lower_command = (0x00 + lower_bits);
         uint8_t higher_command = (0x10 + higher_bits);
         write_c(lower_command);
         write_c(higher_command);
+
+        current_column = column;
     }
     else{
         printf("!");
@@ -88,8 +96,40 @@ void oled_pos(uint16_t row, uint16_t column){
     oled_goto_column(column);
 }
 
+void oled_print_arrow(int direction){
+    if(direction < 4){
+        for(int i = 0; i < 8; i++){
+            write_d(pgm_read_byte(&(arrows[direction][i])));
+        }
+    }
+}
+
 void oled_print(char letter){
+    if(letter == '\r'){
+        oled_goto_column(0);
+        return;
+    }
+    if(letter == '\n'){
+        if(current_line == 7){
+            oled_goto_line(0);
+        }else{
+            oled_goto_line(current_line + 1);
+        }
+    }
+
+    if(letter == '\t'){
+        // Letter size * tabulator_distance
+        const int tab_modulo = 8 * 4;
+        for(int i = current_column % tab_modulo; i < 32; i++){
+            write_d(0);
+        }
+    }
+    
+
     uint8_t index = letter - 0x20;
+
+    if(index > 94) return; // Invalid character
+
     for(int i = 0; i < 8; i++){
         write_d(pgm_read_byte(&(font8[index][i])));
     }

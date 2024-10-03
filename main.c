@@ -3,6 +3,7 @@
 #include "xmemory.h"
 #include "adc_clock.h"
 #include "oled.h"
+#include "user_interface.h"
 
 #include "stdio.h"
 #include "stdint.h"
@@ -55,6 +56,10 @@ int two_on = 0;
 int three_on = 0;
 #endif
 
+void callback_joystick_button(MENU_ID menu_id, int line){
+  printf("Menu ID: %d, Line: %d\r\n", menu_id, line);
+}
+
 int main()
 {
   init_uart();
@@ -65,19 +70,23 @@ int main()
 
   setup_adc_clock();
 
-  set_pin_as_input(B, 1);
-  set_pin_as_input(B, 2);
-  set_pin_as_input(B, 3);
+  set_pin_as_input(B, 1); // Touch Button Right
+  set_pin_as_input(B, 2); // Touch Button Left
 
   volatile uint16_t sleep = (uint16_t) -1;
   //while(--sleep){}
 
   oled_init();
   oled_reset();
+
+  init_user_interface(); // Must be after oled_init & oled_reset
+  bind_callback(callback_joystick_button);
   //uint16_t mem_sel = 0;
 
   // char A[9] = {0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F, 0};
   // oled_print(A);
+
+  fdevopen(guarantee_send_uart, uart_receive);
 
 
   while (1)
@@ -105,8 +114,10 @@ int main()
       oled_print(letter);
     }
 
-    oled_goto_line(2);
-    oled_print('A');
+    //oled_goto_line(2);
+    //oled_print('A');
+
+    update();
 
     if((sleep % 5000) == 0){
         //printf("Sleep: %d\r\n", sleep);
@@ -115,7 +126,7 @@ int main()
     if (!sleep)
     {
       sleep = 100000;
-      oled_reset();
+      //oled_reset();
 
 #ifdef SRAM_TEST
       SRAM_test();

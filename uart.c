@@ -48,9 +48,10 @@ void init_uart()
 
   *UCSR0C = (1 << URSEL) | (1 << USBS) | (3 << UCSZ0);
 
-  fdevopen(guarantee_send_uart, uart_receive);
+  //fdevopen(guarantee_send_uart, uart_receive);
 }
 
+// Do not use for printf();
 void send_uart(char letter)
 {
   if (!uart_ready_to_send())

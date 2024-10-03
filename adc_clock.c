@@ -69,35 +69,35 @@ volatile uint8_t touch_b = 0;
 //volatile int16_t y_adj = 0;
 
 // Calibration values
-volatile uint8_t x_calibration = 0; 
-volatile uint8_t y_calibration = 0;
+volatile uint8_t x_midpoint_calibration = 0; 
+volatile uint8_t y_midpoint_calibration = 0;
 volatile int16_t x_max_adjusted = 0;
 volatile int16_t y_max_adjusted = 0;
 
-Point get_analog_direction(){
+Point get_analog_position(){
     Point analog_position = (Point) {.x = 0, .y = 0, .left_slider = (int16_t) touch_a, .right_slider = (int16_t) touch_b};
 
-    if (x > x_calibration){
-        analog_position.x = (x-x_calibration)*100/(x_max_adjusted);
+    if (x > x_midpoint_calibration){
+        analog_position.x = (x - x_midpoint_calibration) * 100 / (x_max_adjusted);
     }
     else{
-        analog_position.x =(x*100)/x_calibration - 100;
+        analog_position.x =(x * 100) / x_midpoint_calibration - 100;
     }
 
-    if (y > y_calibration){
-        analog_position.y =(y-y_calibration)*100/(y_max_adjusted);
+    if (y > y_midpoint_calibration){
+        analog_position.y =(y - y_midpoint_calibration) * 100 / (y_max_adjusted);
     }
     else{
-        analog_position.y =(y*100)/y_calibration - 100;
+        analog_position.y =(y * 100) / y_midpoint_calibration - 100;
     }
 
     return analog_position;
 }
 
 DIRECTION get_digital_direction(Point analog_direction){
-    const int16_t limit = 20;
+    const int16_t limit = 50;
 
-    //Point analog_direction = get_analog_direction();
+    //Point analog_direction = get_analog_position();
 
     if(abs(analog_direction.x) > abs(analog_direction.y)){
         if(analog_direction.x > limit){
@@ -128,9 +128,9 @@ ISR(INT0_vect, ISR_BLOCK){
     touch_a = ADC[0];
     touch_b = ADC[0];
 
-    Point analog_position = get_analog_direction();
-    DIRECTION direction = get_digital_direction(analog_position);
-    printf("x: %d, y: %d, a: %u, b: %u, d: %d \r\n", analog_position.x, analog_position.y, touch_a, touch_b, (int16_t) direction);
+    //Point analog_position = get_analog_position();
+    //DIRECTION direction = get_digital_direction(analog_position);
+    //printf("x: %d\ty: %d\t\r\na: %u\tb: %u\t\r\nd: %d\t\r\n\r\n", analog_position.x, analog_position.y, touch_a, touch_b, (int16_t) direction);
 
     GIFR = 0;
 
@@ -184,16 +184,24 @@ void setup_adc_clock(){
     set_pin_as_output(D, 5);
 
     // Read correction
+    volatile uint16_t sleep = -1;
+    //while(--sleep){}
+
     ADC[0] = 0;
     while(!read_pin(D, 5)){
-        volatile uint8_t sleep = 10;
+        sleep = 10;
         while(--sleep){}
     }
-    y_calibration = ADC[0];
-    x_calibration = ADC[0];
+    y_midpoint_calibration = ADC[0];
+    x_midpoint_calibration = ADC[0];
+    touch_a = ADC[0];
+    touch_b = ADC[0];
 
-    x_max_adjusted = 255 - (int16_t) x_calibration;
-    y_max_adjusted = 255 - (int16_t) y_calibration;
+    x = x_midpoint_calibration;
+    y = y_midpoint_calibration;
+
+    x_max_adjusted = 255 - (int16_t) x_midpoint_calibration;
+    y_max_adjusted = 255 - (int16_t) y_midpoint_calibration;
 
     // Set MODE of Timer 3 to 4
     TCCR3A |= (1 << COM3A0);
@@ -209,8 +217,8 @@ void setup_adc_clock(){
     // set Clock Select to 6 (16 times slower than CPU)
     TCCR3B &= ~(1 << CS11);
     TCCR3B |= (1 << CS10) | (1 << CS12);
-
-
+ 
+    // Activate Interrupts
     MCUCR |= (3 << ISC00);
     GICR = (1 << INT0);
     ETIMSK = (1 << OCIE3A);

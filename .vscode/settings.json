@@ -4,6 +4,7 @@
         "xcb.h": "c",
         "interrupt.h": "c",
         "io.h": "c",
-        "sfr_defs.h": "c"
+        "sfr_defs.h": "c",
+        "menus.h": "c"
     }
 }
