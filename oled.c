@@ -147,6 +147,99 @@ void oled_print(char letter){
     }
 }
 
+void set_pixel_at(uint16_t x, uint16_t y){
+    uint8_t bit = 1 << (y % 8);
+    uint8_t row = y / 8;
+    uint16_t index = row * 128 + x;
+    OLED_SRAM_DATA[index] |= bit;
+}
+
+// Line Drawing Algorithm
+// From Wikipedia
+void oled_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2){
+    int16_t dx = x2 - x1;
+    int16_t dy = y2 - y1;
+
+    if(dx == 0 && dy == 0){
+        set_pixel_at(x1, y1);
+        return;
+    }
+
+    if(dx != 0){
+        if(dx < 0){
+            int16_t temp = x1;
+            x1 = x2;
+            x2 = temp;
+
+            temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+
+        for(int16_t x = x1; x <= x2; x++){
+            int16_t y = (x - x1) * dy / dx + y1;
+            set_pixel_at(x, y);
+        }
+    }else{
+        if(dy < 0){
+            int16_t temp = x1;
+            x1 = x2;
+            x2 = temp;
+
+            temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+
+        for(int16_t y = y1; y <= y2; y++){
+            int16_t x = (y - y1) * dx / dy + x1;
+            set_pixel_at(x, y);
+        }
+    }
+}
+
+void draw_all_8_symmetric_pixels_in_circle(uint16_t x, uint16_t y, uint16_t x_center, uint16_t y_center){
+    uint16_t x_left = x_center - x;
+    uint16_t x_right = x_center + x;
+    uint16_t y_up = y_center - y; 
+    uint16_t y_down = y_center + y;
+
+    set_pixel_at(x_right, y_down);
+    set_pixel_at(x_left, y_down);
+    set_pixel_at(x_right, y_up);
+    set_pixel_at(x_left, y_up);
+    set_pixel_at(y_down, x_right);
+    set_pixel_at(y_up, x_right);
+    set_pixel_at(y_down, x_left);
+    set_pixel_at(y_up, x_left);
+}
+
+// Midpoint Circle Algorithm
+// Adapted from GeekforGeeks
+void oled_circle(int16_t x_center, int16_t y_center, int16_t radius){
+    int16_t x = radius, y = 0;
+
+    int16_t perimeter = 1 - radius;
+
+    draw_all_8_symmetric_pixels_in_circle(x, y, x_center, y_center);
+
+    while(x > y){
+        y++;
+
+        if(perimeter <= 0){
+            perimeter = perimeter + 2 * y + 1;
+        }else{
+            x--;
+            perimeter = perimeter + 2*y - 2*x + 1;
+        }
+
+        if(x < y) break;
+
+        draw_all_8_symmetric_pixels_in_circle(x, y, x_center, y_center);
+    }
+}
+
+
 void print_sram_to_oled(){
     uint8_t lower_bits = (0x0F & 0);
     uint8_t higher_bits = (0xF0 & 0)>>4;

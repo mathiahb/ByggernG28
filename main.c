@@ -73,13 +73,13 @@ int main()
   set_pin_as_input(B, 1); // Touch Button Right
   set_pin_as_input(B, 2); // Touch Button Left
 
-  volatile uint16_t sleep = (uint16_t) 100;
+  volatile uint16_t sleep = (uint16_t) 1;
   //while(--sleep){}
 
   oled_init();
   oled_reset();
 
-  init_user_interface(); // Must be after oled_init & oled_reset
+  //init_user_interface(); // Must be after oled_init & oled_reset
   bind_callback(callback_joystick_button);
   //uint16_t mem_sel = 0;
 
@@ -88,6 +88,13 @@ int main()
 
   fdevopen(guarantee_send_uart, uart_receive);
 
+
+  // Test Oled Draw
+  oled_line(0, 0, 100, 40);
+  oled_line(30, 0, 30, 63);
+  oled_line(0, 30, 127, 30);
+
+  oled_circle(30, 30, 20);
 
   while (1)
   {
