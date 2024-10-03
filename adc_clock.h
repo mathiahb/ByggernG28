@@ -11,6 +11,8 @@ typedef struct{
     int16_t right_slider;
 } Point;
 
+void interrupt_adc_begin();
+void interrupt_adc_end();
 void setup_adc_clock();
 
 DIRECTION get_digital_direction(Point analog_direction);

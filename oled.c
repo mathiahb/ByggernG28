@@ -241,10 +241,8 @@ void oled_circle(int16_t x_center, int16_t y_center, int16_t radius){
 
 
 void print_sram_to_oled(){
-    uint8_t lower_bits = (0x0F & 0);
-    uint8_t higher_bits = (0xF0 & 0)>>4;
-    uint8_t lower_command = (0x00 + lower_bits);
-    uint8_t higher_command = (0x10 + higher_bits);
+    uint8_t lower_command = (0x00);
+    uint8_t higher_command = (0x10);
     write_c(lower_command);
     write_c(higher_command);
 

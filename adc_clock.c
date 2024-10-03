@@ -6,6 +6,7 @@
 #include "avr/interrupt.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "oled.h"
 
 // ---------------- ADC CLOCK REGISTERS ----------------
 //volatile unsigned char* TCCR1A = (unsigned char*) 0x4F;
@@ -120,46 +121,20 @@ DIRECTION get_digital_direction(Point analog_direction){
     return -1;
 }
 
-ISR(INT0_vect, ISR_BLOCK){
-    cli();
+void interrupt_adc_begin(){
+    ADC[0] = 0;
+}
 
+void interrupt_adc_end(){
     y = ADC[0];
     x = ADC[0];
     touch_a = ADC[0];
     touch_b = ADC[0];
-
-    //Point analog_position = get_analog_position();
-    //DIRECTION direction = get_digital_direction(analog_position);
-    //printf("x: %d\ty: %d\t\r\na: %u\tb: %u\t\r\nd: %d\t\r\n\r\n", analog_position.x, analog_position.y, touch_a, touch_b, (int16_t) direction);
-
-    GIFR = 0;
-
-    return;
 }
 
-ISR(TIMER3_COMPA_vect, ISR_BLOCK){
-    cli();
-
-    ADC[0] = 0;
-
-    TIMSK = 0;
-
-    return;
-}
-
-ISR(BADISR_vect){
-    for(;;) UDR0 = '!';
-}
 
 
 void setup_adc_clock(){
-    if(MCUCSR & (1<<PORF )) printf("Power-on reset.\r\n");
-    if(MCUCSR & (1<<EXTRF)) printf("External reset!\r\n");
-    if(MCUCSR & (1<<BORF )) printf("Brownout reset!\r\n");
-    if(MCUCSR & (1<<WDRF )) printf("Watchdog reset!\r\n");
-    if(MCUCSR & (1<<JTRF )) printf("JTAG reset!\r\n");
-    MCUCSR = 0;
-
     set_pin_as_input(D, 5);
 
     // Set MODE of Timer 1 to 14 (Fast PWM with ICR as TOP) 
@@ -202,26 +177,4 @@ void setup_adc_clock(){
 
     x_max_adjusted = 255 - (int16_t) x_midpoint_calibration;
     y_max_adjusted = 255 - (int16_t) y_midpoint_calibration;
-
-    // Set MODE of Timer 3 to 4
-    TCCR3A |= (1 << COM3A0);
-
-    TCCR3A &= ~(1 << WGM10) & ~(1 << WGM11);
-    TCCR3B &= ~(1 << WGM13);
-    TCCR3B |= (1 << WGM12);
-
-    // Set Output Compare to X
-    OCR3AH = 0x4;
-    OCR3AL = 0x50;
-    
-    // set Clock Select to 6 (16 times slower than CPU)
-    TCCR3B &= ~(1 << CS11);
-    TCCR3B |= (1 << CS10) | (1 << CS12);
- 
-    // Activate Interrupts
-    MCUCR |= (3 << ISC00);
-    GICR = (1 << INT0);
-    ETIMSK = (1 << OCIE3A);
-
-    sei();
 }

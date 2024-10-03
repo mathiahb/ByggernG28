@@ -4,6 +4,7 @@
 #include "adc_clock.h"
 #include "oled.h"
 #include "user_interface.h"
+#include "interrupts.h"
 
 #include "stdio.h"
 #include "stdint.h"
@@ -79,12 +80,13 @@ int main()
   oled_init();
   oled_reset();
 
-  //init_user_interface(); // Must be after oled_init & oled_reset
+  init_user_interface(); // Must be after oled_init & oled_reset
   bind_callback(callback_joystick_button);
   //uint16_t mem_sel = 0;
-
   // char A[9] = {0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F, 0};
   // oled_print(A);
+
+  init_interrupts();
 
   fdevopen(guarantee_send_uart, uart_receive);
 
