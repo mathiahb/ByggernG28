@@ -3,7 +3,7 @@
 #include "adc_clock.h"
 #include "oled.h"
 #include "gpio.h"
-#include "CAN/SPI.h"
+#include "CAN/CAN.h"
 
 #include "stdio.h"
 #include "stdint.h"
@@ -23,7 +23,7 @@ ISR(INT0_vect, ISR_BLOCK){
 ISR(INT1_vect, ISR_BLOCK){
     cli();
 
-    printf(receive_spi());
+    CAN_interrupt_handler();
 
     return;
 }

@@ -6,7 +6,7 @@
 #include "user_interface.h"
 #include "interrupts.h"
 
-#include "CAN/MCP2515.h"
+#include "CAN/CAN.h"
 
 #include "stdio.h"
 #include "stdint.h"
@@ -59,6 +59,8 @@ int two_on = 0;
 int three_on = 0;
 #endif
 
+uint8_t i = 0;
+
 void callback_joystick_button(MENU_ID menu_id, int line){
   printf("Menu ID: %d, Line: %d\r\n", menu_id, line);
 }
@@ -92,7 +94,7 @@ int main()
 
   init_interrupts();
 
-  init_MCP2515();
+  init_CAN();
 
   // Test Oled Draw
   //oled_line(0, 0, 100, 40);
@@ -137,7 +139,17 @@ int main()
 
     if (!sleep)
     {
-      sleep = 100;
+      sleep = 1000;
+
+      i++;
+
+      CAN_Message transmit_message = {
+            .ID = (uint16_t) i, 
+            .remote_frame = 0, 
+            .data_length = 3, 
+            .data = {i + 0, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, 0}};
+
+      CAN_transmit(transmit_message);
 
 #ifdef SRAM_TEST
       SRAM_test();

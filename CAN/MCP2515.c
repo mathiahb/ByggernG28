@@ -1,24 +1,10 @@
 #include "MCP2515.h"
 #include "SPI.h"
+#include "mcp2515_common.h"
+
+#include "stdio.h"
 
 #include "../gpio.h"
-
-const uint8_t RESET = (uint8_t) 0b11000000;
-const uint8_t READ = (uint8_t) 0b00000011;
-const uint8_t READ_RX_BUFFER = (uint8_t) 0b10010000; // bit 1 and 2 variable, not bit 0.
-const uint8_t WRITE = (uint8_t) 0b00000010;
-const uint8_t LOAD_TX_BUFFER = (uint8_t) 0b01000000; // 3 last bits variable
-const uint8_t REQUEST_TO_SEND = (uint8_t) 0b10000000; // 3 last bits variable
-const uint8_t READ_STATUS = (uint8_t) 0b10100000;
-const uint8_t RX_STATUS = (uint8_t) 0b10110000;
-const uint8_t BIT_MODIFY = (uint8_t) 0b00000101;
-
-const uint8_t TXRTSCTRL = (uint8_t) 0x0D;
-const uint8_t CNF1 = (uint8_t) 0x2A;
-const uint8_t CNF2 = (uint8_t) 0x29;
-const uint8_t CNF3 = (uint8_t) 0x28;
-
-const uint8_t EFLG = (uint8_t) 0x2D;
 
 void Select_SPI(){
     write_pin(B, 4, 0);
@@ -31,7 +17,7 @@ void Unselect_SPI(){
 uint8_t read(uint8_t address){
     Select_SPI();
 
-    transmit_spi(READ);
+    transmit_spi(MCP_READ);
     transmit_spi(address);
     uint8_t data_from_mcp = receive_spi();
 
@@ -43,17 +29,17 @@ uint8_t read(uint8_t address){
 void write(uint8_t address, uint8_t data){
     Select_SPI();
 
-    transmit_spi(WRITE);
+    transmit_spi(MCP_WRITE);
     transmit_spi(address);
     transmit_spi(data);
 
     Unselect_SPI();
 }
 
-void request_to_send(){
+void request_to_send_0(){
     Select_SPI();
 
-    transmit_spi(REQUEST_TO_SEND);
+    transmit_spi(MCP_RTS_TX0); // REQUEST_TO_SEND + (1 << 0)
 
     Unselect_SPI();
 }
@@ -61,7 +47,7 @@ void request_to_send(){
 uint8_t read_status(){
     Select_SPI();
 
-    transmit_spi(READ_STATUS);
+    transmit_spi(MCP_READ_STATUS);
     uint8_t status = receive_spi();
 
     Unselect_SPI();
@@ -83,7 +69,7 @@ void bit_modify(uint8_t address, uint8_t mask_byte, uint8_t data){
 
     Select_SPI();
 
-    transmit_spi(BIT_MODIFY);
+    transmit_spi(MCP_BITMOD);
     transmit_spi(address);
     transmit_spi(mask_byte);
     transmit_spi(data);
@@ -94,9 +80,52 @@ void bit_modify(uint8_t address, uint8_t mask_byte, uint8_t data){
 void reset(){
     Select_SPI();
 
-    transmit_spi(RESET);
+    transmit_spi(MCP_RESET);
 
     Unselect_SPI();
+}
+
+void write_arbitration_0(uint16_t arbitration){
+    uint8_t arbitration_high = (uint8_t) (arbitration >> 3) & 0xFF;
+    uint8_t arbitration_low = (uint8_t) (arbitration & 7) << 5;
+
+    write(MCP_TXB0CTRL + 1, arbitration_high);
+    write(MCP_TXB0CTRL + 2, arbitration_low);
+}
+
+void write_data_0(uint8_t position ,uint8_t data){
+    write(MCP_TXB0CTRL + 6 + position, data);
+}
+
+void write_data_control_0(uint8_t data_length, uint8_t remote_frame){
+    write(MCP_TXB0CTRL + 5, (remote_frame << 6) + data_length);
+}
+
+// Returns extended_remote_frame << 6 + data_length (4 bits)
+uint8_t read_data_control_0(){
+    return read(MCP_RXB0SIDH + 4) & 0b01001111;
+}
+
+void read_data_0(uint8_t* data, uint8_t data_length){
+    for(int i = 0; i < data_length; i++){
+        data[i] = read(MCP_RXB0SIDH + 5 + i);
+    }
+}
+
+// Returns remote frame << 15 + id (11 bits)
+uint16_t read_arbitration_0(){
+    uint16_t arbitration = 0;
+
+    uint16_t arbitration_high = (uint16_t) read(MCP_RXB0SIDH);
+    uint16_t arbitration_low = (uint16_t) read(MCP_RXB0SIDH + 1);
+
+    arbitration = (arbitration_high << 3) + (arbitration_low >> 5) + ((arbitration_low & 0b00010000) << 11);
+
+    return arbitration;
+}
+
+uint8_t is_currently_transmitting_0(){
+    return read(MCP_TXB0CTRL) & (1 << 3);
 }
 
 void init_MCP2515(){
