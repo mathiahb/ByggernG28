@@ -14,12 +14,6 @@ MENU_ID current_menu = START_MENU;
 int previous_clicked = 1;
 
 
-void init_user_interface(){
-    set_pin_as_input(B, 3); // Joystick button
-    print_menu(start_menu);
-}
-
-
 void (*cb_function)(MENU_ID menu_id, int line) = 0;
 
 void bind_callback(void (*callback_function)(MENU_ID, int)){
@@ -67,11 +61,20 @@ void print_menu(const Menu menu){
 }
 
 void print_cursor(int previous_cursor){
+    if(cursor_position == previous_cursor){
+        return;
+    }
     oled_pos(previous_cursor, 0);
     oled_print(' ');
 
     oled_pos(cursor_position, 0);
     oled_print_arrow(3);
+}
+
+void init_user_interface(){
+    set_pin_as_input(B, 3); // Joystick button
+    print_menu(start_menu);
+    print_cursor(-1);
 }
 
 void update(){

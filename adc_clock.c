@@ -132,8 +132,6 @@ void interrupt_adc_end(){
     touch_b = ADC[0];
 }
 
-
-
 void setup_adc_clock(){
     set_pin_as_input(D, 5);
 

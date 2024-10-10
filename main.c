@@ -6,6 +6,8 @@
 #include "user_interface.h"
 #include "interrupts.h"
 
+#include "CAN/MCP2515.h"
+
 #include "stdio.h"
 #include "stdint.h"
 #include <stdlib.h>
@@ -86,17 +88,18 @@ int main()
   // char A[9] = {0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F, 0};
   // oled_print(A);
 
-  init_interrupts();
-
   fdevopen(guarantee_send_uart, uart_receive);
 
+  init_interrupts();
+
+  init_MCP2515();
 
   // Test Oled Draw
-  oled_line(0, 0, 100, 40);
-  oled_line(30, 0, 30, 63);
-  oled_line(0, 30, 127, 30);
+  //oled_line(0, 0, 100, 40);
+  //oled_line(30, 0, 30, 63);
+  //oled_line(0, 30, 127, 30);
 
-  oled_circle(30, 30, 20);
+  //oled_circle(30, 30, 20);
 
   while (1)
   {
@@ -134,9 +137,7 @@ int main()
 
     if (!sleep)
     {
-      sleep = 10;
-      print_sram_to_oled();
-      //oled_reset();
+      sleep = 100;
 
 #ifdef SRAM_TEST
       SRAM_test();

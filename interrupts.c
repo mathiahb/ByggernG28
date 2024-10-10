@@ -1,18 +1,29 @@
 #include "interrupts.h"
-#include "avr/interrupt.h"
+
 #include "adc_clock.h"
 #include "oled.h"
+#include "gpio.h"
+#include "CAN/SPI.h"
 
+#include "stdio.h"
 #include "stdint.h"
 
-uint16_t timer_interrupted = 0;
+#include "avr/interrupt.h"
 
 ISR(INT0_vect, ISR_BLOCK){
     cli();
 
     interrupt_adc_end();
 
-    GIFR = 0;
+    //GIFR = 0;
+
+    return;
+}
+
+ISR(INT1_vect, ISR_BLOCK){
+    cli();
+
+    printf(receive_spi());
 
     return;
 }
@@ -20,16 +31,11 @@ ISR(INT0_vect, ISR_BLOCK){
 ISR(TIMER3_COMPA_vect, ISR_BLOCK){
     cli();
 
-    timer_interrupted++;
-
     interrupt_adc_begin();    
 
-    if(timer_interrupted == 1000){
-        print_sram_to_oled();
-        timer_interrupted = 0;
-    }
+    print_sram_to_oled();
 
-    TIMSK = 0;
+    //TIMSK = 0;
 
     return;
 }
@@ -63,8 +69,8 @@ void init_interrupts(){
     TCCR3B |= (1 << CS30) | (1 << CS32);
 
     // Activate Interrupts
-    MCUCR |= (3 << ISC00);
-    GICR = (1 << INT0);
+    MCUCR |= (3 << ISC00) | (2 << ISC10);
+    GICR = (1 << INT0) | (1 << INT1);
     ETIMSK = (1 << OCIE3A);
 
     sei();
