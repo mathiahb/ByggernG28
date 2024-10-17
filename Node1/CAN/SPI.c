@@ -1,6 +1,6 @@
 #include "SPI.h"
 
-#include "../gpio.h"
+#include "../ExternalInterface/gpio.h"
 
 #include "stdint.h"
 

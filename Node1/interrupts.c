@@ -1,8 +1,8 @@
 #include "interrupts.h"
 
-#include "adc_clock.h"
-#include "oled.h"
-#include "gpio.h"
+#include "MultifunctionBoard/adc.h"
+#include "MultifunctionBoard/oled.h"
+#include "ExternalInterface/gpio.h"
 #include "CAN/CAN.h"
 
 #include "stdio.h"

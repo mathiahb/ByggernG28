@@ -1,12 +1,13 @@
-#include "adc_clock.h"
-#include "gpio.h"
-#include "xmemory.h"
+#include "adc.h"
+
+#include "../ExternalInterface/gpio.h"
+#include "../ExternalInterface/xmemory.h"
+
+#include "avr/interrupt.h"
 
 #include "stdint.h"
-#include "avr/interrupt.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "oled.h"
 
 // ---------------- ADC CLOCK REGISTERS ----------------
 //volatile unsigned char* TCCR1A = (unsigned char*) 0x4F;
@@ -133,7 +134,10 @@ void interrupt_adc_end(){
 }
 
 void setup_adc_clock(){
-    set_pin_as_input(D, 5);
+    set_pin_as_input(B, 1); // Touch Button Right
+    set_pin_as_input(B, 2); // Touch Button Left
+
+    set_pin_as_input(D, 5); // Clock
 
     // Set MODE of Timer 1 to 14 (Fast PWM with ICR as TOP) 
     TCCR1A &= ~(1 << WGM10);

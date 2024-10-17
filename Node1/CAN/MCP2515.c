@@ -4,7 +4,7 @@
 
 #include "stdio.h"
 
-#include "../gpio.h"
+#include "../ExternalInterface/gpio.h"
 
 void Select_SPI(){
     write_pin(B, 4, 0);

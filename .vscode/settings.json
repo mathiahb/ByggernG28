@@ -6,6 +6,11 @@
         "io.h": "c",
         "sfr_defs.h": "c",
         "menus.h": "c",
-        "mcp2515.h": "c"
+        "mcp2515.h": "c",
+        "oled.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "interrupts.h": "c",
+        "gpio.h": "c"
     }
 }

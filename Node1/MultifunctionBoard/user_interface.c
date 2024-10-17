@@ -1,8 +1,9 @@
 #include "user_interface.h"
 #include "menus.h"
 #include "oled.h"
-#include "adc_clock.h"
-#include "gpio.h"
+#include "adc.h"
+
+#include "../ExternalInterface/gpio.h"
 
 #include "stdio.h"
 

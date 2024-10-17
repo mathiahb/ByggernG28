@@ -1,5 +1,6 @@
 #include "uart.h"
-#include "gpio.h"
+
+#include "../ExternalInterface/gpio.h"
 
 #include "stdio.h"
 

@@ -1,9 +1,9 @@
-#include "gpio.h"
-#include "uart.h"
-#include "xmemory.h"
-#include "adc_clock.h"
-#include "oled.h"
-#include "user_interface.h"
+#include "ExternalInterface/gpio.h"
+#include "ExternalInterface/xmemory.h"
+#include "UART/uart.h"
+#include "MultifunctionBoard/adc.h"
+#include "MultifunctionBoard/oled.h"
+#include "MultifunctionBoard/user_interface.h"
 #include "interrupts.h"
 
 #include "CAN/CAN.h"
@@ -75,26 +75,16 @@ int main()
 
   setup_adc_clock();
 
-  set_pin_as_input(B, 1); // Touch Button Right
-  set_pin_as_input(B, 2); // Touch Button Left
-
-  volatile uint16_t sleep = (uint16_t) 1;
-  //while(--sleep){}
-
   oled_init();
-  oled_reset();
 
   init_user_interface(); // Must be after oled_init & oled_reset
   bind_callback(callback_joystick_button);
-  //uint16_t mem_sel = 0;
-  // char A[9] = {0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F, 0};
-  // oled_print(A);
-
-  fdevopen(guarantee_send_uart, uart_receive);
 
   init_interrupts();
 
   init_CAN();
+
+  fdevopen(guarantee_send_uart, uart_receive);
 
   // Test Oled Draw
   //oled_line(0, 0, 100, 40);
@@ -102,6 +92,8 @@ int main()
   //oled_line(0, 30, 127, 30);
 
   //oled_circle(30, 30, 20);
+
+  volatile uint16_t sleep = (uint16_t) 1000;
 
   while (1)
   {
