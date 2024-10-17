@@ -11,6 +11,8 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "interrupts.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "sam.h": "c",
+        "uart.h": "c"
     }
 }

@@ -23,6 +23,10 @@ OBJECT_FILES = $(SOURCE_FILES:%.c=$(BUILD_DIR)/%.o)
 
 $(BUILD_DIR):
 	mkdir $(BUILD_DIR)
+	mkdir $(BUILD_DIR)/CAN
+	mkdir $(BUILD_DIR)/ExternalInterface
+	mkdir $(BUILD_DIR)/UART
+	mkdir $(BUILD_DIR)/MultifunctionBoard
 
 $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@

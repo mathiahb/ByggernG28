@@ -8,6 +8,8 @@
 
 #include "CAN/CAN.h"
 
+#include "avr/delay.h"
+
 #include "stdio.h"
 #include "stdint.h"
 #include <stdlib.h>
@@ -67,6 +69,8 @@ void callback_joystick_button(MENU_ID menu_id, int line){
 
 int main()
 {
+  _delay_ms(1000); // Delay to let OLED power on.
+
   init_uart();
 
 #ifndef DECODER_TEST
@@ -83,8 +87,6 @@ int main()
   init_interrupts();
 
   init_CAN();
-
-  fdevopen(guarantee_send_uart, uart_receive);
 
   // Test Oled Draw
   //oled_line(0, 0, 100, 40);
@@ -109,7 +111,7 @@ int main()
       }
 
       if(letter == '3'){
-        three_on = !three_on;
+        three_on =/ !three_on;
         write_pin(C, 3, three_on);
       }
     }
@@ -117,7 +119,8 @@ int main()
 
     if(uart_unread_data_in_buffer()){
       char letter = uart_receive();
-      oled_print(letter);
+      guarantee_send_uart(letter);
+      //oled_print(letter);
     }
 
     //oled_goto_line(2);
@@ -135,13 +138,13 @@ int main()
 
       i++;
 
-      CAN_Message transmit_message = {
+      /*CAN_Message transmit_message = {
             .ID = (uint16_t) i, 
             .remote_frame = 0, 
             .data_length = 3, 
             .data = {i + 0, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, 0}};
 
-      CAN_transmit(transmit_message);
+      CAN_transmit(transmit_message);*/
 
 #ifdef SRAM_TEST
       SRAM_test();

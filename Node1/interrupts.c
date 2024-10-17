@@ -46,10 +46,10 @@ ISR(BADISR_vect){
 
 void init_interrupts(){
     if(MCUCSR & (1<<PORF )) printf("Power-on reset.\r\n");
-    if(MCUCSR & (1<<EXTRF)) printf("External reset!\r\n");
-    if(MCUCSR & (1<<BORF )) printf("Brownout reset!\r\n");
-    if(MCUCSR & (1<<WDRF )) printf("Watchdog reset!\r\n");
-    if(MCUCSR & (1<<JTRF )) printf("JTAG reset!\r\n");
+    if(MCUCSR & (1<<EXTRF)) printf("External reset.\r\n");
+    if(MCUCSR & (1<<BORF )) printf("Brownout reset.\r\n");
+    if(MCUCSR & (1<<WDRF )) printf("Watchdog reset.\r\n");
+    if(MCUCSR & (1<<JTRF )) printf("JTAG reset.\r\n");
     MCUCSR = 0;
 
     // Timer For ADC + OLED Interrupt

@@ -1,0 +1,1 @@
+#define GENERAL_TEST_COMMUNICATION 0x7F // All 1s
