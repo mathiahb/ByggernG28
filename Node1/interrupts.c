@@ -10,10 +10,24 @@
 
 #include "avr/interrupt.h"
 
+#include "../CAN_IDs.h"
+
 ISR(INT0_vect, ISR_BLOCK){
     cli();
 
     interrupt_adc_end();
+    
+    Point point = get_analog_position();
+    DIRECTION direction = get_digital_direction(point);
+
+    CAN_Message message = {
+        .ID = JOYSTICK_INFO, 
+        .data_length = 5, 
+        .data = {(uint8_t) direction, (uint8_t) point.x, (uint8_t) point.y, (uint8_t) point.left_slider, (uint8_t) point.right_slider}, 
+        .remote_frame = 0
+    };
+
+    CAN_transmit(message);
 
     //GIFR = 0;
 

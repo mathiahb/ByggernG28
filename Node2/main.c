@@ -4,6 +4,9 @@
 
 #include "ExternalInterface/gpio.h"
 
+#define F_CPU 84000000
+#define F_MCP 48000000
+
 /*
  * Remember to update the Makefile with the (relative) path to the uart.c file.
  * This starter code will not compile until the UART file has been included in the Makefile. 
@@ -14,6 +17,8 @@
  * apt or your favorite package manager.
  */
 #include "UART/uart.h"
+#include "CAN/can.h"  
+#include "../CAN_IDs.h"
 
 int main()
 {
@@ -21,26 +26,41 @@ int main()
 
     WDT->WDT_MR = WDT_MR_WDDIS; //Disable Watchdog Timer
 
-    //Uncomment after including uart above
-    uart_init(84000000, 9600);
-    //printf("Hello World\n\r");
+    uart_init(F_CPU, 9600);
+
+    can_init((CanInit){.brp = F_CPU / BAUDRATE - 1, .phase1 = PHASE1, .phase2 = PHASE2, .propag = PROPAG, .sjw = SJW, .smp = 1}, 0); 
+    printf("BR: %u\r\n", CAN0->CAN_BR);
+
+    printf("Hello World\r\n");
 
     setup_pin_as_output(B, 13, 0);
 
-    volatile uint32_t sleep = 1000;
+    volatile uint32_t sleep = 10;
     volatile uint32_t on = 1;
 
     while (1)
     {
         /* code */
+        CanMsg received_messsage = {};
+        int new_message = 0;
+
+        new_message = can_rx(&received_messsage);
+
+        if(new_message){
+            if(received_messsage.id == JOYSTICK_INFO){
+                printf("Direction: %d\r\n", received_messsage.byte[0]);
+                printf("x: %d, y: %d, left: %u, right: %u\r\n", (int8_t) received_messsage.byte[1], (int8_t) received_messsage.byte[2], received_messsage.byte[3], received_messsage.byte[4]);
+            }
+        }
+
         while(--sleep);
 
-        sleep = 10000;
+        sleep = 5000000;
 
         write_output(B, 13, on);
         on = !on;
 
-        uart_tx('A');
+        //uart_tx('A');
     }
     
 }

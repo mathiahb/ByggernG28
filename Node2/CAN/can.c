@@ -11,7 +11,7 @@ void can_printmsg(CanMsg m){
     for(uint8_t i = 1; i < m.length; i++){
         printf(", %d", m.byte[i]);
     }
-    printf("})\n");
+    printf("})\r\n");
 }
 
 
@@ -22,11 +22,13 @@ void can_printmsg(CanMsg m){
 void can_init(CanInit init, uint8_t rxInterrupt){
     // Disable CAN
     CAN0->CAN_MR &= ~CAN_MR_CANEN; 
+    REG_PIOA_WPMR &= ~(1 << 0);
     
     // Clear status register by reading it
     __attribute__((unused)) uint32_t ul_status = CAN0->CAN_SR;     
     
     // Disable interrupts on CANH and CANL pins
+
     PIOA->PIO_IDR = PIO_PA8A_URXD | PIO_PA9A_UTXD;
     
     // Select CAN0 RX and TX in PIOA
@@ -67,6 +69,7 @@ void can_init(CanInit init, uint8_t rxInterrupt){
 
     // Enable CAN
     CAN0->CAN_MR |= CAN_MR_CANEN;
+    REG_PIOA_WPMR |= (1 << 0);
 }
 
 

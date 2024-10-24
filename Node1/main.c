@@ -8,6 +8,8 @@
 
 #include "CAN/CAN.h"
 
+#include "../CAN_IDs.h"
+
 #include "avr/delay.h"
 
 #include "stdio.h"
@@ -84,9 +86,9 @@ int main()
   init_user_interface(); // Must be after oled_init & oled_reset
   bind_callback(callback_joystick_button);
 
-  init_interrupts();
-
   init_CAN();
+
+  init_interrupts();
 
   // Test Oled Draw
   //oled_line(0, 0, 100, 40);
@@ -120,11 +122,7 @@ int main()
     if(uart_unread_data_in_buffer()){
       char letter = uart_receive();
       guarantee_send_uart(letter);
-      //oled_print(letter);
     }
-
-    //oled_goto_line(2);
-    //oled_print('A');
 
     update();
 
@@ -138,13 +136,13 @@ int main()
 
       i++;
 
-      /*CAN_Message transmit_message = {
-            .ID = (uint16_t) i, 
+      /**CAN_Message transmit_message = {
+            .ID = (uint16_t) GENERAL_TEST_COMMUNICATION_FROM_NODE1, 
             .remote_frame = 0, 
             .data_length = 3, 
             .data = {i + 0, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, 0}};
 
-      CAN_transmit(transmit_message);*/
+      CAN_transmit(transmit_message);**/
 
 #ifdef SRAM_TEST
       SRAM_test();

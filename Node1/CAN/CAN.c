@@ -2,20 +2,46 @@
 #include "MCP2515.h"
 #include "mcp2515_common.h"
 
+#include "../../CAN_IDs.h"
+
 #include "stdio.h"
+
+#define F_MCP2515 16000000
 
 void init_CAN(){
     init_MCP2515();
 
-    write(MCP_CANCTRL, 2 << 5); // 2: Loopback mode, 0: Normal mode
+    write(MCP_CANCTRL, 4 << 5); // 4: Configuration Mode, 2: Loopback mode, 0: Normal mode
+
+    uint8_t CNF3 = (PHASE2 << 0);
+    uint8_t CNF2 = (1 << 7) | (1 << 6) | ((PHASE1) << 3) | ((PROPAG) << 0);
+    uint8_t CNF1 = (SJW << 6) | (F_MCP2515 / BAUDRATE / 2 - 1);
+
+    write(MCP_CNF3, CNF3);
+    uint8_t cnf3 = read(MCP_CNF3);
+    write(MCP_CNF2, CNF2);
+    uint8_t cnf2 = read(MCP_CNF2);
+    write(MCP_CNF1, CNF1);
+    uint8_t cnf1 = read(MCP_CNF1);
+
+    printf("1: %d - %d\r\n", cnf1, CNF1);
+    printf("2: %d - %d\r\n", cnf2, CNF2);
+    printf("3: %d - %d\r\n", cnf3, CNF3);
+
+    write(MCP_CANCTRL, 0 << 5); // 2: Loopback mode, 0: Normal mode
     bit_modify(MCP_CANINTE, 1 << 0, 0xFF); // Set RX0IE
+
 
     write(MCP_RXM0SIDH, 0);
     write(MCP_RXM0SIDL, 0);
 }
 
 void CAN_transmit(CAN_Message message){
-    while(is_currently_transmitting_0()); // Wait until not transmitting
+    while(is_currently_transmitting_0()){
+        uint8_t transmit_error_count = read(0x1C);
+        uint8_t read_error_count = read(0x1D);
+        printf("Write error: %u, Read error: %u\r\n", transmit_error_count, read_error_count);
+    } // Wait until not transmitting
 
     write_arbitration_0(message.ID);
     write_data_control_0(message.data_length, message.remote_frame);
