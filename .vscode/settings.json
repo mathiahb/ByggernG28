@@ -13,6 +13,8 @@
         "interrupts.h": "c",
         "gpio.h": "c",
         "sam.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "can_ids.h": "c",
+        "sam3x8e.h": "c"
     }
 }

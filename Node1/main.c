@@ -1,3 +1,7 @@
+#ifndef __AVR_ATmega162__
+#define __AVR_ATmega162__
+#endif
+
 #include "ExternalInterface/gpio.h"
 #include "ExternalInterface/xmemory.h"
 #include "UART/uart.h"

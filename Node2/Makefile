@@ -11,6 +11,9 @@ SOURCE_FILES = \
 	UART/uart.c \
     CAN/can.c \
     ExternalInterface/gpio.c \
+	PWM/pmc.c \
+	PWM/servo.c \
+	PWM/timercounter.c \
 #	filenameN.c
 
 # Feel free to ignore anything below this line
@@ -37,6 +40,7 @@ $(BUILD_DIR):
 	mkdir $(BUILD_DIR)/UART
 	mkdir $(BUILD_DIR)/CAN
 	mkdir $(BUILD_DIR)/ExternalInterface
+	mkdir $(BUILD_DIR)/PWM
 
 $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) $< -o $@

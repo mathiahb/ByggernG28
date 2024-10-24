@@ -1,9 +1,11 @@
-build/main.o: main.c sam/sam3x/include/sam.h sam/sam3x/include/sam3x8e.h \
- sam/cmsis/core_cm3.h sam/cmsis/cmsis_version.h \
- sam/cmsis/cmsis_compiler.h sam/cmsis/cmsis_gcc.h sam/cmsis/mpu_armv7.h \
+build/timercounter.o: PWM/timercounter.c PWM/timercounter.h \
+ PWM/../ExternalInterface/gpio.h PWM/pmc.h sam/sam3x/include/sam.h \
+ sam/sam3x/include/sam3x8e.h sam/cmsis/core_cm3.h \
+ sam/cmsis/cmsis_version.h sam/cmsis/cmsis_compiler.h \
+ sam/cmsis/cmsis_gcc.h sam/cmsis/mpu_armv7.h \
  sam/sam3x/source/system_sam3x.h sam/compiler.h sam/parts.h \
  sam/preprocessor.h sam/tpaste.h sam/stringz.h sam/mrepeat.h sam/io.h \
- sam/sam3x/include/sam3xa.h sam/interrupt.h \
+ sam/sam3x/include/sam3xa.h sam/sam3x/include/sam3x8e.h sam/interrupt.h \
  sam/interrupt/interrupt_sam_nvic.h \
  sam/sam3x/include/component/component_adc.h \
  sam/sam3x/include/component/component_can.h \
@@ -71,5 +73,4 @@ build/main.o: main.c sam/sam3x/include/sam.h sam/sam3x/include/sam3x8e.h \
  sam/sam3x/include/instance/instance_wdt.h \
  sam/sam3x/include/instance/instance_rtc.h \
  sam/sam3x/include/instance/instance_gpbr.h \
- sam/sam3x/include/pio/pio_sam3x8e.h ExternalInterface/gpio.h PWM/servo.h \
- UART/uart.h CAN/can.h ../CAN_IDs.h
+ sam/sam3x/include/pio/pio_sam3x8e.h

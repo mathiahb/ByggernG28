@@ -3,6 +3,7 @@
 #include "sam/sam3x/include/sam.h"
 
 #include "ExternalInterface/gpio.h"
+#include "PWM/servo.h"
 
 #define F_CPU 84000000
 #define F_MCP 48000000
@@ -29,9 +30,10 @@ int main()
     uart_init(F_CPU, 9600);
 
     can_init((CanInit){.brp = F_CPU / BAUDRATE - 1, .phase1 = PHASE1, .phase2 = PHASE2, .propag = PROPAG, .sjw = SJW, .smp = 1}, 0); 
-    printf("BR: %u\r\n", CAN0->CAN_BR);
 
-    printf("Hello World\r\n");
+    init_PWM();
+
+    printf("Hello World!\r\n");
 
     setup_pin_as_output(B, 13, 0);
 
@@ -55,7 +57,11 @@ int main()
 
         while(--sleep);
 
-        sleep = 5000000;
+        sleep = 10000000;
+
+        printf("Val: %d, %d, %d\r\n", REG_TC0_CV0, REG_TC0_CV1, REG_TC0_CV2);
+        printf("RC: %d, %d, %d\r\n", REG_TC0_RC0, REG_TC0_RC1, REG_TC0_RC2);
+        printf("AC: %d, %d, %d\r\n", REG_TC0_RA0, REG_TC0_RA1, REG_TC0_RA2);
 
         write_output(B, 13, on);
         on = !on;
