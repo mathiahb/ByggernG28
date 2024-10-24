@@ -5,7 +5,7 @@
 
 #include "sam/sam3x/include/sam.h"
 
-const uint32_t RC = 1000;
+const uint32_t RC = 13125;
 const uint32_t scalar = 1; // Scaling RA, RB and RC equally.
 
 void disable_write_protection(){
@@ -21,7 +21,7 @@ void enable_write_protection(){
 void set_duty_cycle_A(uint32_t promille){
     disable_write_protection();
 
-    REG_TC0_RA0 = promille * scalar;
+    REG_TC0_RA0 = (promille * scalar) * 13125 / 1000;
 
     enable_write_protection();
 }
@@ -35,7 +35,7 @@ void init_timercounter(){
 
     // Setup TIOA so that RA = D * RC
     // TIOB Deactivated
-    REG_TC0_CMR0 = ((TC_CMR_TCCLKS_TIMER_CLOCK1 << TC_CMR_TCCLKS_Pos) // Clock select
+    REG_TC0_CMR0 = (TC_CMR_TCCLKS_TIMER_CLOCK4 // Clock select
                     //| TC_CMR_CLKI // Clock Invert
                     | TC_CMR_BURST_NONE
                     //| TC_CMR_CPCSTOP

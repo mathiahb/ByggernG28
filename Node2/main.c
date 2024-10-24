@@ -6,7 +6,6 @@
 #include "PWM/servo.h"
 
 #define F_CPU 84000000
-#define F_MCP 48000000
 
 /*
  * Remember to update the Makefile with the (relative) path to the uart.c file.
@@ -50,18 +49,14 @@ int main()
 
         if(new_message){
             if(received_messsage.id == JOYSTICK_INFO){
-                printf("Direction: %d\r\n", received_messsage.byte[0]);
-                printf("x: %d, y: %d, left: %u, right: %u\r\n", (int8_t) received_messsage.byte[1], (int8_t) received_messsage.byte[2], received_messsage.byte[3], received_messsage.byte[4]);
+                printf("%d\r\n", (int32_t)((int8_t) received_messsage.byte[1]));
+                joystick_set_servo_position((int32_t)((int8_t) received_messsage.byte[1]));
             }
         }
 
         while(--sleep);
 
-        sleep = 10000000;
-
-        printf("Val: %d, %d, %d\r\n", REG_TC0_CV0, REG_TC0_CV1, REG_TC0_CV2);
-        printf("RC: %d, %d, %d\r\n", REG_TC0_RC0, REG_TC0_RC1, REG_TC0_RC2);
-        printf("AC: %d, %d, %d\r\n", REG_TC0_RA0, REG_TC0_RA1, REG_TC0_RA2);
+        sleep = 1000;
 
         write_output(B, 13, on);
         on = !on;
