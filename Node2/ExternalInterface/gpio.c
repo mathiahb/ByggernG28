@@ -49,7 +49,7 @@ void enable_pin(PORT port, uint32_t pin){
     }
 }
 
-void disable_pin(PORT port, uint32_t pin){
+void disable_pio_on_pin(PORT port, uint32_t pin){
     if(port == A){
         REG_PIOA_PDR = (1 << pin);
     }
@@ -200,7 +200,7 @@ void setup_pin_as_peripheral(PORT port, uint32_t pin, CONTROLLER controller){
     select_peripheral_controller(port, pin, controller);
     
     disable_output_on_pin(port, pin);
-    disable_pin(port, pin);
+    disable_pio_on_pin(port, pin);
     disable_pin_as_output(port, pin);
 
     enable_output_on_pin(port, pin);
@@ -220,4 +220,13 @@ void setup_pin_as_output(PORT port, uint32_t pin, uint32_t starting_value){
     enable_output_on_pin(port, pin);        // OER
 
     enable_write_protection_port(port);     // WPEN enabled
+}
+
+void disconnect_pin(PORT port, uint32_t pin){
+    disable_write_protection_port(port);
+
+    disable_output_on_pin(port, pin);
+    disable_pio_on_pin(port, pin);
+
+    enable_write_protection_port(port);
 }

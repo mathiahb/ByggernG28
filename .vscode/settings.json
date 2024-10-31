@@ -15,6 +15,7 @@
         "sam.h": "c",
         "uart.h": "c",
         "can_ids.h": "c",
-        "sam3x8e.h": "c"
+        "sam3x8e.h": "c",
+        "pwm.h": "c"
     }
 }

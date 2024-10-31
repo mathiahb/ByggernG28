@@ -6,7 +6,6 @@
 #include "sam/sam3x/include/sam.h"
 
 const uint32_t RC = 13125;
-const uint32_t scalar = 1; // Scaling RA, RB and RC equally.
 
 void disable_write_protection(){
     REG_TC0_WPMR &= ~(TC_WPMR_WPEN);
@@ -21,7 +20,7 @@ void enable_write_protection(){
 void set_duty_cycle_A(uint32_t promille){
     disable_write_protection();
 
-    REG_TC0_RA0 = (promille * scalar) * 13125 / 1000;
+    REG_TC0_RA0 = (promille) * 13125 / 1000;
 
     enable_write_protection();
 }
@@ -55,9 +54,9 @@ void init_timercounter(){
                     | TC_CMR_BSWTRG_NONE
     );
 
-    REG_TC0_CCR0 = TC_CCR_CLKEN | TC_CCR_SWTRG;
+    REG_TC0_RC0 = RC;
 
-    REG_TC0_RC0 = RC * scalar;
+    REG_TC0_CCR0 = TC_CCR_CLKEN | TC_CCR_SWTRG;
 
     enable_write_protection();
 }

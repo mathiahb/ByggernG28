@@ -1,4 +1,4 @@
-#include "timercounter.h"
+#include "pwm.h"
 #include "servo.h"
 
 
@@ -15,12 +15,13 @@ void joystick_set_servo_position(int32_t joystick_position){
         duty_cycle = max_duty;
     }
 
-    set_duty_cycle_A(duty_cycle);
+    set_duty_cycle_CH1(duty_cycle);
 }
 
 
-void init_PWM(){
-    init_timercounter();
+void init_servo(){
+    //init_timercounter();
+    init_pwm();
 
     joystick_set_servo_position(0);
 }

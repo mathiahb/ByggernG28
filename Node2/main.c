@@ -4,6 +4,7 @@
 
 #include "ExternalInterface/gpio.h"
 #include "PWM/servo.h"
+#include "ExternalInterface/adc.h"
 
 #define F_CPU 84000000
 
@@ -30,11 +31,10 @@ int main()
 
     can_init((CanInit){.brp = F_CPU / BAUDRATE - 1, .phase1 = PHASE1, .phase2 = PHASE2, .propag = PROPAG, .sjw = SJW, .smp = 1}, 0); 
 
-    init_PWM();
+    init_servo();
+    init_ADC();
 
     printf("Hello World!\r\n");
-
-    setup_pin_as_output(B, 13, 0);
 
     volatile uint32_t sleep = 10;
     volatile uint32_t on = 1;
@@ -49,17 +49,15 @@ int main()
 
         if(new_message){
             if(received_messsage.id == JOYSTICK_INFO){
-                printf("%d\r\n", (int32_t)((int8_t) received_messsage.byte[1]));
+                //printf("%d\r\n", (int32_t)((int8_t) received_messsage.byte[1]));
                 joystick_set_servo_position((int32_t)((int8_t) received_messsage.byte[1]));
             }
         }
 
         while(--sleep);
 
-        sleep = 1000;
-
-        write_output(B, 13, on);
-        on = !on;
+        sleep = 1000000;
+        printf("ADC: %u\r\n", REG_ADC_LCDR);
 
         //uart_tx('A');
     }

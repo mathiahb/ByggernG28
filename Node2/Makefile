@@ -11,9 +11,11 @@ SOURCE_FILES = \
 	UART/uart.c \
     CAN/can.c \
     ExternalInterface/gpio.c \
+	ExternalInterface/adc.c \
 	PWM/pmc.c \
 	PWM/servo.c \
 	PWM/timercounter.c \
+	PWM/pwm.c \
 #	filenameN.c
 
 # Feel free to ignore anything below this line

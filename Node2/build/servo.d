@@ -1,1 +1,1 @@
-build/servo.o: PWM/servo.c PWM/timercounter.h PWM/servo.h
+build/servo.o: PWM/servo.c PWM/pwm.h PWM/servo.h
