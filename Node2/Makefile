@@ -16,6 +16,8 @@ SOURCE_FILES = \
 	PWM/servo.c \
 	PWM/timercounter.c \
 	PWM/pwm.c \
+	PWM/motor.c \
+	solenoid.c \
 #	filenameN.c
 
 # Feel free to ignore anything below this line

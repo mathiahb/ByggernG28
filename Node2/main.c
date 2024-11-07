@@ -4,6 +4,7 @@
 
 #include "ExternalInterface/gpio.h"
 #include "PWM/servo.h"
+#include "PWM/motor.h"
 #include "ExternalInterface/adc.h"
 
 #define F_CPU 84000000
@@ -20,6 +21,7 @@
 #include "UART/uart.h"
 #include "CAN/can.h"  
 #include "../CAN_IDs.h"
+#include "solenoid.h"
 
 int main()
 {
@@ -29,12 +31,27 @@ int main()
 
     uart_init(F_CPU, 9600);
 
+    printf("Hello World!\r\n");
+
     can_init((CanInit){.brp = F_CPU / BAUDRATE - 1, .phase1 = PHASE1, .phase2 = PHASE2, .propag = PROPAG, .sjw = SJW, .smp = 1}, 0); 
 
+    printf("CAN online.\r\n");
+
     init_servo();
+
+    printf("servo online.\r\n");
+
+    init_motor();
+
+    printf("motor online.\r\n");
+
     init_ADC();
 
-    printf("Hello World!\r\n");
+    printf("ADC online.\r\n");
+
+    init_solenoid();
+
+    printf("Init complete.\r\n");
 
     volatile uint32_t sleep = 10;
     volatile uint32_t on = 1;
@@ -50,14 +67,20 @@ int main()
         if(new_message){
             if(received_messsage.id == JOYSTICK_INFO){
                 //printf("%d\r\n", (int32_t)((int8_t) received_messsage.byte[1]));
-                joystick_set_servo_position((int32_t)((int8_t) received_messsage.byte[1]));
+                joystick_set_motor_position_ref((int32_t)((int8_t) received_messsage.byte[1]));
+                joystick_set_servo_position((int32_t)((int8_t) received_messsage.byte[2]));
+            }else if(received_messsage.id == SOLENOID_COMMAND_SHOOT){
+                printf("TIME TO SHOOT.\r\n");
+                shoot_solenoid();
             }
         }
 
         while(--sleep);
 
-        sleep = 1000000;
-        printf("ADC: %u\r\n", REG_ADC_LCDR);
+        sleep = 100;
+        //printf("ADC: %u\r\n", REG_ADC_LCDR);
+
+        //printf("Encode: %d %d\r\n", REG_TC2_CV0, REG_TC2_CV1);
 
         //uart_tx('A');
     }

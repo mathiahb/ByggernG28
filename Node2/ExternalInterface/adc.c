@@ -13,7 +13,7 @@ void init_ADC(){
     REG_ADC_CHER = ADC_CHER_CH10;
 
     REG_ADC_EMR = ADC_EMR_CMPMODE_HIGH | ADC_EMR_CMPSEL(10);
-    REG_ADC_CWR = ADC_CWR_LOWTHRES(700) | ADC_CWR_HIGHTHRES(1500);
+    REG_ADC_CWR = ADC_CWR_LOWTHRES(500) | ADC_CWR_HIGHTHRES(3000);
 
     REG_ADC_IER = ADC_IER_COMPE;
     NVIC_EnableIRQ(ID_ADC);
@@ -28,17 +28,28 @@ void ADC_Handler(void){
         REG_ADC_EMR = ADC_EMR_CMPMODE_LOW | ADC_EMR_CMPSEL(10);
     }else{
         score += 1;
+        printf("Score: %u\r\n", score);
         REG_ADC_EMR = ADC_EMR_CMPMODE_HIGH | ADC_EMR_CMPSEL(10);
     }
 
     mode_high = !mode_high;
 
-    //REG_ADC_IDR = ADC_IDR_COMPE
+    REG_ADC_IDR = ADC_IDR_COMPE;
 
-    printf("Score: %u\r\n", score);
+    //printf("Hello.\r\n");
 
-    REG_ADC_CR = ADC_CR_START;
+    REG_TC0_CCR1 = TC_CCR_SWTRG;
+
+    //REG_ADC_CR = ADC_CR_START;
 
     uint32_t status = REG_ADC_ISR;
     NVIC_ClearPendingIRQ(ID_ADC);
+}
+
+void TC1_Handler(void){
+    //printf("Goodbye.\r\n");
+    REG_ADC_IER = ADC_IER_COMPE;
+
+    uint32_t status = REG_TC0_SR1;
+    NVIC_ClearPendingIRQ(ID_TC1);
 }

@@ -70,12 +70,12 @@ int three_on = 0;
 uint8_t i = 0;
 
 void callback_joystick_button(MENU_ID menu_id, int line){
-  printf("Menu ID: %d, Line: %d\r\n", menu_id, line);
+  
 }
 
 int main()
 {
-  _delay_ms(1000); // Delay to let OLED power on.
+  _delay_ms(5000); // Delay to let OLED power on.
 
   init_uart();
 

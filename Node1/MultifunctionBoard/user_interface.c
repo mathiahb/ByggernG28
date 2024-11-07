@@ -4,6 +4,8 @@
 #include "adc.h"
 
 #include "../ExternalInterface/gpio.h"
+#include "../CAN/CAN.h"
+#include "../../CAN_IDs.h"
 
 #include "stdio.h"
 
@@ -46,7 +48,10 @@ void check_clicked(){
     int current_clicked = read_pin(B, 3);
 
     if(previous_clicked != 0 && current_clicked == 0){
-        (*cb_function)(current_menu, cursor_position);
+        //(*cb_function)(current_menu, cursor_position);
+
+        CAN_Message message = {.data = {}, .data_length = 0, .ID = SOLENOID_COMMAND_SHOOT, .remote_frame = 0};
+        CAN_transmit(message);
     }
 
     previous_clicked = current_clicked;
