@@ -57,42 +57,47 @@ void check_clicked(){
     previous_clicked = current_clicked;
 }
 
-void print_menu(const Menu menu){
+void print_menu(const Menu* menu){
     for(int line = 0; line < 8; line++){
-        oled_pos(line, 8);
-        for(int character_location_in_line = 0; character_location_in_line < 15; character_location_in_line++){
-            oled_print(menu.lines[line][character_location_in_line]);
-        }
+        oled_print((*menu).lines[line], 8, line);
     }
 }
 
-void print_cursor(int previous_cursor){
-    if(cursor_position == previous_cursor){
-        return;
-    }
-    oled_pos(previous_cursor, 0);
-    oled_print(' ');
-
-    oled_pos(cursor_position, 0);
-    oled_print_arrow(3);
+void print_cursor(){
+    oled_print_arrow(3, 0, cursor_position);
 }
+
+void draw_menu(){
+    print_menu(&start_menu);
+
+    int previous_cursor = update_cursor();
+
+    print_cursor();
+
+    oled_print_arrow(0, 32, 5);
+    oled_print_arrow(1, 40, 5);
+    oled_print_arrow(2, 48, 5);
+    oled_print_arrow(3, 56, 5);
+}
+
+void draw_smiley(){
+    oled_circle(100, 44, 18);
+    oled_line(100, 44 + 18, 100 - 15, 44 + 11);
+    oled_line(100 - 15, 44 + 11, 100 - 15, 44 - 11);
+    oled_line(100 - 15, 44 - 11, 100, 44 - 18);
+    oled_line(100, 44 - 18, 100 + 15, 44 - 11);
+    oled_line(100 + 15, 44 - 11, 100 + 15, 44 + 11);
+    oled_line(100 + 15, 44 + 11, 100, 44 + 18);
+}
+
 
 void init_user_interface(){
     set_pin_as_input(B, 1); // Joystick button
-    print_menu(start_menu);
-    print_cursor(-1);
+
+    bind_draw_function(draw_menu);
+    bind_draw_function(draw_smiley);
 }
 
-void update(){
-    int previous_cursor = update_cursor();
-
+void update_user_interface(){
     check_clicked();
-
-    print_cursor(previous_cursor);
-
-    oled_pos(4, 64);
-    oled_print_arrow(0);
-    oled_print_arrow(1);
-    oled_print_arrow(2);
-    oled_print_arrow(3);
 }

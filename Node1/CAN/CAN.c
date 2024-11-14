@@ -12,6 +12,14 @@
 
 volatile uint16_t score = 0;
 
+void draw_score(){
+    char score_text[32];
+    
+    sprintf(score_text, "Score: %u", score);
+
+    oled_print(score_text, 8, 3);
+}
+
 void init_CAN(){
     init_MCP2515();
 
@@ -30,6 +38,8 @@ void init_CAN(){
 
     write(MCP_RXM0SIDH, 0);
     write(MCP_RXM0SIDL, 0);
+
+    bind_draw_function(draw_score);
 }
 
 void CAN_transmit(CAN_Message message){
@@ -74,22 +84,7 @@ void CAN_interrupt_handler(){
 
             if(data.ID == SCORE){
                 score++;
-
-                oled_pos(2, 8);
-                const char* score_text = "Score: "; // 83 99 111 114 101 58 32 0
-                
-                //for(definisjon; krav; ekstra)
-                for(int i = 0; score_text[i]; i++){
-                    oled_print(score_text[i]);
-                }
-
-                char number_score_as_text[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                sprintf(number_score_as_text, "%u", score);
-
-                for(int i = 0; number_score_as_text[i]; i++){
-                    oled_print(number_score_as_text[i]);
-                }
-
+                score %= 10;
             }
 
             // RX0IF
