@@ -73,4 +73,5 @@ build/adc.o: ExternalInterface/adc.c ExternalInterface/adc.h \
  ExternalInterface/../sam/sam3x/include/instance/instance_wdt.h \
  ExternalInterface/../sam/sam3x/include/instance/instance_rtc.h \
  ExternalInterface/../sam/sam3x/include/instance/instance_gpbr.h \
- ExternalInterface/../sam/sam3x/include/pio/pio_sam3x8e.h
+ ExternalInterface/../sam/sam3x/include/pio/pio_sam3x8e.h \
+ ExternalInterface/../CAN/can.h ExternalInterface/../../CAN_IDs.h

@@ -1,8 +1,10 @@
 #include "adc.h"
 
 #include "../sam/sam3x/include/sam.h"
+#include "../CAN/can.h"
+#include "../../CAN_IDs.h"
 
-volatile int score = 0;
+//volatile int score = 0;
 volatile int mode_high = 1;
 volatile int mode_capture = 0;
 
@@ -39,8 +41,8 @@ void ADC_Handler(void){
     }else{
         if(mode_capture == number_of_runs){
             if(average <= 1100){
-                score += 1;
-                printf("Score: %u\r\n", score);
+                CanMsg message = {.byte = {}, .dword = 0, .length = 0, .id = SCORE};
+                can_tx(message);
             }
 
             average = 0;
