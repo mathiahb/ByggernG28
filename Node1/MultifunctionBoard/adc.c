@@ -4,6 +4,7 @@
 #include "../ExternalInterface/xmemory.h"
 
 #include "avr/interrupt.h"
+#include "avr/delay.h"
 
 #include "stdint.h"
 #include "stdio.h"
@@ -165,6 +166,9 @@ void setup_adc_clock(){
     //while(--sleep){}
 
     ADC[0] = 0;
+
+    _delay_ms(1);
+
     while(!read_pin(D, 5)){
         sleep = 10;
         while(--sleep){}

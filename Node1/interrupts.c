@@ -75,8 +75,8 @@ void init_interrupts(){
     TCCR3B |= (1 << WGM12);
 
     // Set Output Compare to X
-    OCR3AH = 0x00;
-    OCR3AL = 0x50;
+    OCR3AH = 0x01;
+    OCR3AL = 0x00;
     
     // set Clock Select to 6 (1024 times slower than CPU)
     TCCR3B &= ~(1 << CS31);

@@ -67,8 +67,6 @@ int two_on = 0;
 int three_on = 0;
 #endif
 
-uint8_t i = 0;
-
 void callback_joystick_button(MENU_ID menu_id, int line){
   
 }
@@ -123,30 +121,12 @@ int main()
     }
 #endif
 
-    if(uart_unread_data_in_buffer()){
-      char letter = uart_receive();
-      guarantee_send_uart(letter);
-    }
-
-    update();
-
-    if((sleep % 5000) == 0){
-        //printf("Sleep: %d\r\n", sleep);
-    }
+    update_user_interface();
+    draw();
 
     if (!sleep)
     {
       sleep = 1000;
-
-      i++;
-
-      /**CAN_Message transmit_message = {
-            .ID = (uint16_t) GENERAL_TEST_COMMUNICATION_FROM_NODE1, 
-            .remote_frame = 0, 
-            .data_length = 3, 
-            .data = {i + 0, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, 0}};
-
-      CAN_transmit(transmit_message);**/
 
 #ifdef SRAM_TEST
       SRAM_test();

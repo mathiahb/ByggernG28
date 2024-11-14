@@ -30,7 +30,7 @@ void init_timercounter(uint32_t frequency_TC0){
                     TC_CMR_WAVSEL_UP_RC
     );
 
-    REG_TC0_CMR1 = (TC_CMR_TCCLKS_TIMER_CLOCK4 |
+    REG_TC0_CMR1 = (TC_CMR_TCCLKS_TIMER_CLOCK2 |
                     TC_CMR_WAVE |
                     TC_CMR_WAVSEL_UP |
                     TC_CMR_CPCSTOP);
