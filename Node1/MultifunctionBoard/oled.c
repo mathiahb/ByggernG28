@@ -157,7 +157,7 @@ void set_pixel_at(uint16_t x, uint16_t y){
 }
 
 // Line Drawing Algorithm
-// From Wikipedia
+// From Wikipedia, link can be provided
 void oled_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2){
     int16_t dx = x2 - x1;
     int16_t dy = y2 - y1;
@@ -217,7 +217,7 @@ void draw_all_8_symmetric_pixels_in_circle(uint16_t x, uint16_t y, uint16_t x_ce
 }
 
 // Midpoint Circle Algorithm
-// Adapted from GeekforGeeks
+// Adapted from GeekforGeeks, link can be provided
 void oled_circle(int16_t x_center, int16_t y_center, int16_t radius){
     int16_t x = radius, y = 0;
 

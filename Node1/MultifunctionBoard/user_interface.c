@@ -45,7 +45,7 @@ int update_cursor(){
 }
 
 void check_clicked(){
-    int current_clicked = read_pin(B, 3);
+    int current_clicked = !read_pin(B, 1);
 
     if(previous_clicked != 0 && current_clicked == 0){
         //(*cb_function)(current_menu, cursor_position);
@@ -78,7 +78,7 @@ void print_cursor(int previous_cursor){
 }
 
 void init_user_interface(){
-    set_pin_as_input(B, 3); // Joystick button
+    set_pin_as_input(B, 1); // Joystick button
     print_menu(start_menu);
     print_cursor(-1);
 }
