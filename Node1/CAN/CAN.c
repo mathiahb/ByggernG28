@@ -6,7 +6,11 @@
 
 #include "stdio.h"
 
+#include "../MultifunctionBoard/oled.h"
+
 #define F_MCP2515 16000000
+
+volatile uint16_t score = 0;
 
 void init_CAN(){
     init_MCP2515();
@@ -68,10 +72,24 @@ void CAN_interrupt_handler(){
         if(flags & (1 << 0)){
             CAN_Message data = CAN_read();
 
-            printf("Arbitration: %d, Data_length: %d, Remote_Frame: %d\r\n", data.ID, data.data_length, data.remote_frame);
-            
-            for(int i = 0; i < data.data_length; i++){
-                printf("Data %d: %d\r\n", i, data.data[i]);
+            if(data.ID == SCORE){
+                score++;
+
+                oled_pos(2, 8);
+                const char* score_text = "Score: "; // 83 99 111 114 101 58 32 0
+                
+                //for(definisjon; krav; ekstra)
+                for(int i = 0; score_text[i]; i++){
+                    oled_print(score_text[i]);
+                }
+
+                char number_score_as_text[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                sprintf(number_score_as_text, "%u", score);
+
+                for(int i = 0; number_score_as_text[i]; i++){
+                    oled_print(number_score_as_text[i]);
+                }
+
             }
 
             // RX0IF
@@ -83,17 +101,17 @@ void CAN_interrupt_handler(){
             bit_modify(MCP_CANINTF, 1 << 1, 0);
         }
         if(flags & (1 << 2)){
-            printf("TX0IF ble aktivert?\r\n");
+            //printf("TX0IF ble aktivert?\r\n");
             // TX0IF
             bit_modify(MCP_CANINTF, 1 << 2, 0);
         }
         if(flags & (1 << 3)){
-            printf("TX1IF ble aktivert?\r\n");
+            //printf("TX1IF ble aktivert?\r\n");
             // TX1IF
             bit_modify(MCP_CANINTF, 1 << 3, 0);
         }
         if(flags & (1 << 4)){
-            printf("TX2IF ble aktivert?\r\n");
+            //printf("TX2IF ble aktivert?\r\n");
             // TX2IF
             bit_modify(MCP_CANINTF, 1 << 4, 0);
         }
