@@ -67,8 +67,8 @@ int main()
         if(new_message){
             if(received_messsage.id == JOYSTICK_INFO){
                 //printf("%d\r\n", (int32_t)((int8_t) received_messsage.byte[1]));
-                joystick_set_motor_position_ref((int32_t)((int8_t) received_messsage.byte[1]));
-                joystick_set_servo_position((int32_t)((int8_t) received_messsage.byte[2]));
+                set_motor_position_ref((int32_t)((uint8_t) received_messsage.byte[4]), 1);
+                joystick_set_servo_position((int32_t)((int8_t) received_messsage.byte[1]), 0);
             }else if(received_messsage.id == SOLENOID_COMMAND_SHOOT){
                 printf("TIME TO SHOOT.\r\n");
                 shoot_solenoid();

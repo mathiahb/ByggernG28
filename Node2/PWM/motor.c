@@ -15,8 +15,12 @@ volatile uint32_t r_n = 0; // r_n max = 2800
 volatile int32_t e_previous = 0;
 volatile int32_t diskret_integral = 0; // Også kjent som: Sum
 
-void joystick_set_motor_position_ref(int32_t joystick){
-    r_n = 1400 + (1400 * joystick) / 100;
+void set_motor_position_ref(int32_t indata, uint32_t is_slider){
+    r_n = 1400 + (1400 * indata) / 100;
+
+    if(is_slider){
+        r_n = (indata * 2800) / 255;
+    }
 }
 
 void joystick_set_motor_speed(int32_t joystick){
@@ -60,7 +64,7 @@ void init_motor(){
     set_duty_cycle_CH0(0);
 
     init_timercounter(f);
-    joystick_set_motor_position_ref(0);
+    set_motor_position_ref(0, 0);
     //init_pwm(); // Is called from servo.c
 
 
