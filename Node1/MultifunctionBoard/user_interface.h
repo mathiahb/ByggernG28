@@ -7,7 +7,7 @@ typedef enum{
 }MENU_ID;
 
 void init_user_interface();
-void update();
+void update_user_interface();
 void bind_callback(void (*callback_function)(MENU_ID, int));
 
 #endif
