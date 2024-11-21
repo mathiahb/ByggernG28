@@ -19,7 +19,7 @@ void init_ADC(){
     REG_ADC_CHER = ADC_CHER_CH10;
 
     REG_ADC_EMR = ADC_EMR_CMPMODE_HIGH | ADC_EMR_CMPSEL(10);
-    REG_ADC_CWR = ADC_CWR_LOWTHRES(1000) | ADC_CWR_HIGHTHRES(3000);
+    REG_ADC_CWR = ADC_CWR_LOWTHRES(800) | ADC_CWR_HIGHTHRES(3000);
 
     REG_ADC_IER = ADC_IER_COMPE;
     NVIC_EnableIRQ(ID_ADC);
@@ -40,10 +40,12 @@ void ADC_Handler(void){
         REG_TC0_CCR1 = TC_CCR_SWTRG;
     }else{
         if(mode_capture == number_of_runs){
-            if(average <= 1100){
+            if(average <= 3000){
                 CanMsg message = {.byte = {}, .dword = 0, .length = 0, .id = SCORE};
                 can_tx(message);
             }
+
+            printf("%u\r\n", average);
 
             average = 0;
 
